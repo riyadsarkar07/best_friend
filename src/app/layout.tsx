@@ -1,16 +1,17 @@
-import type { Metadata } from "next";
-import { Caveat, Nunito, Playfair_Display } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Caveat, Fraunces, Manrope } from "next/font/google";
 import { friendshipConfig } from "@/data/friendship-config";
 import "./globals.css";
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
   display: "swap",
+  axes: ["SOFT", "WONK", "opsz"],
 });
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
   display: "swap",
 });
@@ -22,9 +23,20 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: `${friendshipConfig.siteTitle} for ${friendshipConfig.friendName}`,
-  description:
-    "A handmade digital scrapbook surprise: memories, letters, scratch cards, and a best-friend certificate.",
+  title: `${friendshipConfig.siteTitle} · A surprise for ${friendshipConfig.friendName}`,
+  description: `A handmade digital scrapbook for ${friendshipConfig.friendName}: memories, a letter, scratch cards, a tiny quiz, and one last surprise.`,
+  openGraph: {
+    title: `${friendshipConfig.siteTitle} · A surprise for ${friendshipConfig.friendName}`,
+    description:
+      "A handmade digital scrapbook: memories, letters, scratch cards, and a best-friend certificate.",
+    type: "website",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#f4eee2",
 };
 
 export default function RootLayout({
@@ -35,7 +47,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${playfair.variable} ${nunito.variable} ${caveat.variable} paper-world antialiased`}
+        className={`${fraunces.variable} ${manrope.variable} ${caveat.variable} paper-world antialiased`}
       >
         {children}
       </body>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Music, Pause, Play, VolumeX } from "lucide-react";
+import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { friendshipConfig } from "@/data/friendship-config";
 
 export function MusicPlayer() {
@@ -10,6 +10,8 @@ export function MusicPlayer() {
   const [muted, setMuted] = useState(false);
   const hasTrack = Boolean(friendshipConfig.musicSrc);
 
+  if (!hasTrack) return null;
+
   const toggle = async () => {
     if (!hasTrack || !audioRef.current) return;
     if (playing) {
@@ -17,8 +19,12 @@ export function MusicPlayer() {
       setPlaying(false);
       return;
     }
-    await audioRef.current.play();
-    setPlaying(true);
+    try {
+      await audioRef.current.play();
+      setPlaying(true);
+    } catch {
+      setPlaying(false);
+    }
   };
 
   const toggleMute = () => {
@@ -28,33 +34,52 @@ export function MusicPlayer() {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-40 flex flex-wrap gap-2">
-      {hasTrack && <audio ref={audioRef} src={friendshipConfig.musicSrc} loop />}
-      <button
-        type="button"
-        onClick={toggle}
-        disabled={!hasTrack}
-        className="inline-flex min-h-12 cursor-pointer items-center gap-2 rounded-full bg-paper/95 px-4 text-sm font-semibold text-ink shadow-[0_10px_24px_rgba(80,58,42,0.14)] disabled:cursor-not-allowed disabled:opacity-70"
-        aria-label={hasTrack ? friendshipConfig.musicLabel : "Music is not configured yet"}
-      >
-        {hasTrack ? (
-          playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />
-        ) : (
-          <VolumeX className="h-4 w-4" />
-        )}
-        <Music className="h-4 w-4" />
-        {hasTrack ? (playing ? "Pause music" : "Play music") : "Add a song in config"}
-      </button>
-      {hasTrack && (
+    <div className="fixed bottom-4 left-4 z-40 flex items-end gap-2 sm:bottom-6 sm:left-6">
+      {hasTrack && <audio ref={audioRef} src={friendshipConfig.musicSrc} loop preload="none" />}
+      <div className="flex items-center gap-1 rounded-full border border-line bg-paper/95 p-1 pl-1.5 shadow-[var(--shadow-sm)] backdrop-blur-sm">
         <button
           type="button"
-          onClick={toggleMute}
-          className="inline-flex min-h-12 min-w-12 cursor-pointer items-center justify-center rounded-full bg-paper/95 text-ink shadow-[0_10px_24px_rgba(80,58,42,0.14)]"
-          aria-label={muted ? "Unmute music" : "Mute music"}
+          onClick={toggle}
+          disabled={!hasTrack}
+          className="grid h-10 w-10 cursor-pointer place-items-center rounded-full bg-sage-deep text-paper transition hover:bg-sage disabled:cursor-not-allowed disabled:bg-cream-deep disabled:text-ink-faint"
+          aria-label={
+            hasTrack
+              ? `${playing ? "Pause" : "Play"} ${friendshipConfig.musicLabel}`
+              : "Music is not configured yet"
+          }
+          title={hasTrack ? friendshipConfig.musicLabel : "Add a song in the config file"}
         >
-          <VolumeX className={`h-4 w-4 ${muted ? "opacity-100" : "opacity-40"}`} />
+          {hasTrack ? (
+            playing ? (
+              <Pause className="h-4 w-4" />
+            ) : (
+              <Play className="h-4 w-4 translate-x-[1px]" />
+            )
+          ) : (
+            <VolumeX className="h-4 w-4" />
+          )}
         </button>
-      )}
+
+        <div className="hidden pr-2 sm:block">
+          <p className="max-w-[8.5rem] truncate text-[0.72rem] font-semibold leading-tight text-ink">
+            {hasTrack ? friendshipConfig.musicLabel : "No song yet"}
+          </p>
+          <p className="text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-ink-faint">
+            {hasTrack ? (playing ? "Now playing" : "Music") : "Add in config"}
+          </p>
+        </div>
+
+        {hasTrack && (
+          <button
+            type="button"
+            onClick={toggleMute}
+            className="grid h-10 w-10 cursor-pointer place-items-center rounded-full text-ink-soft transition hover:bg-cream"
+            aria-label={muted ? "Unmute music" : "Mute music"}
+          >
+            {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
